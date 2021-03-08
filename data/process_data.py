@@ -1,16 +1,53 @@
+# import libraries
 import sys
+import pandas as pd
+import numpy as np
+from sqlalchemy import create_engine
+
 
 
 def load_data(messages_filepath, categories_filepath):
-    pass
-
+    # load messages dataset
+    messages = pd.read_csv(messages_filepath)
+    categories = pd.read_csv(categories_filepath)
+    
+    # merge datasets
+    df = messages.merge(categories, how='outer')
+    
+    return df
 
 def clean_data(df):
-    pass
 
+    # Create a dataframe of the 36 individual category columns
+    categories = df['categories'].str.split(';',expand=True)
+    
+    # Rename de DataFrame columns according to the categories name
+    # specified in the firs row of 'categories' datagrame
+    row = categories.loc[0,:] # Select the first row of the categories dataframe
+    category_colnames = row.apply(lambda x: x.split('-')[0])# use this row to extract a list of new column names for categories.
+    categories.columns = category_colnames # rename the columns of `categories`
+    
+    # Convert category values to just numbers 0 or 1.
+    for column in categories:
+        categories[column] = categories[column].apply(lambda x: x.split('-')[1]).astype(int)
+    
+    # Drop the original categories column from `df`
+    df = df.drop(['categories'],axis = 1)
+
+    # Concatenate the original dataframe with the new `categories` dataframe
+    df = pd.concat([df, categories],axis = 1)
+    
+    # Remove NaN values of all columns except 'original'
+    df = df.dropna(how = 'any',subset = df.columns[df.columns != 'original'],axis = 0)
+    
+    # Drop duplicates
+    df = df.drop_duplicates(subset=['message'])
+    return df
 
 def save_data(df, database_filename):
-    pass  
+    engine = create_engine('sqlite:///Database_Disaster_Response.db')
+    df.to_sql('Database_Disaster_Response', engine, index=False, if_exists='replace')
+    
 
 
 def main():
