@@ -1,3 +1,12 @@
+'''
+Date: 10th March 2021
+Author: Daniela Yassuda Yamashita
+Description: process_data.py script. Read a csv file (i.e. `disaster_categories.csv`
+			 and `disaster_messages.csv`) contaning raw disaster messages extracted from
+			 Eight Figure(https://www.figure-eight.com/). It also cleans the data and saves
+			 it into a SQL database named `DisasterResponse.db`. 
+'''
+
 # import libraries
 import sys
 import pandas as pd
