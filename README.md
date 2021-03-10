@@ -4,7 +4,7 @@ This GitHub repository contains all peace of code that analyse thousands of text
 
 The apperance of the web app is shown bellow. Basically, the text message provided by the user is classified it into 36 categories, such as 'Water', 'Home', 'Hospital', 'Route', etc.
 
-![](./image/web_app.png)
+![](./image/web_app.PNG)
 
 The web app implements in the backend a machine learning pipeline that uses Natural Language processing uses Random Forest classifier. The data used to train and test the machine learning pipeline come from [Eight Figure](https://www.figure-eight.com/).
 
