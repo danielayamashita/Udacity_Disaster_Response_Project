@@ -5,13 +5,13 @@ Description: train_classifier.py script. Provides a intuitive user interface
 			to process disaster messages easially using the machine learning
 			pipeline in backend.
 '''
-
-# Import libraries
 import json
 import plotly
 import pandas as pd
+
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+
 from flask import Flask
 from flask import render_template, request, jsonify
 from plotly.graph_objs import Bar
@@ -19,10 +19,9 @@ from sklearn.externals import joblib
 from sqlalchemy import create_engine
 from sklearn.base import BaseEstimator, TransformerMixin
 import nltk
-app = Flask(__name__)
-nltk.download(['stopwords','wordnet','punkt', 'wordnet', 'averaged_perceptron_tagger'])
 
-#-------------------------------------------------------------------------
+nltk.download(['stopwords','wordnet','punkt', 'wordnet', 'averaged_perceptron_tagger'])
+app = Flask(__name__)
 class NumberOfNounsVerbsExtractor(BaseEstimator, TransformerMixin):
     '''
     This class is to create a Customise transform function 
@@ -68,7 +67,8 @@ class NumberOfNounsVerbsExtractor(BaseEstimator, TransformerMixin):
         X_tagged = pd.Series(X).apply(self.NumberOfNouns)
         
         return pd.DataFrame(X_tagged)
-#-------------------------------------------------------------------------
+
+#-------
 
 def tokenize(text):
     tokens = word_tokenize(text)
@@ -85,6 +85,7 @@ def tokenize(text):
 engine = create_engine('sqlite:///../data/DisasterResponse.db')
 df = pd.read_sql_table('Database_Disaster_Response', engine)
 
+print(df.groupby('genre').count()['message'])
 # load model
 model = joblib.load("../models/classifier.pkl")
 
@@ -93,14 +94,19 @@ model = joblib.load("../models/classifier.pkl")
 @app.route('/')
 @app.route('/index')
 def index():
-
     
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
     
+    
+    # Percentage of type of messages in the dataset
+    percentage_type_message = df.drop(['id', 'message', 'original', 'genre'], axis = 1).sum()/df.shape[0]
+    type_message_name = list(percentage_type_message .index)
+
     # create visuals
+    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
@@ -119,6 +125,24 @@ def index():
                     'title': "Genre"
                 }
             }
+        },
+        {
+            'data': [
+                Bar(
+                    x=type_message_name,
+                    y=percentage_type_message
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of type messages',
+                'yaxis': {
+                    'title': "Type of messages"
+                },
+                'xaxis': {
+                    'title': "[%]"
+                }
+            }
         }
     ]
     
@@ -128,7 +152,6 @@ def index():
     
     # render web page with plotly graphs
     return render_template('master.html', ids=ids, graphJSON=graphJSON)
-
 
 # web page that handles user query and displays model results
 @app.route('/go')

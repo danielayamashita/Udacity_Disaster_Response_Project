@@ -6,7 +6,6 @@ Description: train_classifier.py script. Train a machine learning pipeline using
 			receives as input the `DisasterResponse.db` SQL database and gives as
 			output the machine learning pipeline `classifier.pkl`.
 '''
-
 # import libraries
 import sys
 import re
@@ -156,7 +155,7 @@ def build_model():
         ])),
 
     
-        ('clf', MultiOutputClassifier(RandomForestClassifier()))
+        ('clf', MultiOutputClassifier(RandomForestClassifier(n_jobs = 1)))
     ])
     
     # Define the parameters to be tuned in the Machine learning model
@@ -191,7 +190,10 @@ def evaluate_model(model, X_test, Y_test, category_names):
     
     # print the metrics to evaluate the model
     print('Average overall accuracy {0:.2f}%'.format(accuracy*100))
-    print(classification_report(np.hstack(Y_test), np.hstack(Y_pred), target_names=category_names))
+    
+    for idx, col in enumerate(category_names):
+        print(col, classification_report(Y_test.iloc[:,idx], preds[:,idx]))
+        
     print("\nBest Parameters:", model.best_params_)
 
 
