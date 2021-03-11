@@ -192,7 +192,7 @@ def evaluate_model(model, X_test, Y_test, category_names):
     print('Average overall accuracy {0:.2f}%'.format(accuracy*100))
     
     for idx, col in enumerate(category_names):
-        print(col, classification_report(Y_test.iloc[:,idx], preds[:,idx]))
+        print(col, classification_report(Y_test[:,idx], Y_pred[:,idx]))
         
     print("\nBest Parameters:", model.best_params_)
 
